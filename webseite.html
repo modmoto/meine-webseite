@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+    <head>
+        <title>
+            Simons Webseite
+        </title>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+        <style>
+            .kommentare {
+                background-color: aquamarine;
+                margin: 10px;
+                padding: 20px;
+            }
+
+        </style>
+
+        <script>
+            $('document').ready(() => {
+                let meinButton = $('#mein-button')
+                let kommentarContainer = $('#kommentar-container')
+                let counterContainer = $('#counter')
+                let textField = $('#text-field')
+                let nameField = $('#name-field')
+                let playButton = $('#play-button')
+                let volumeUpButton = $('#volume-up-button')
+                let volumeDownButton = $('#volume-down-button')
+                
+                let kommentarWurdeGeadded = false
+                let counter = 0
+
+
+                let backendUrl = 'https://simon-guesbook-backend.herokuapp.com/greetings/simonheiss'
+
+                function displayResponseInHtml(response) {
+                    counterContainer.text(`Kommentare vom Backend: ${response.data.length}`)
+
+                    response.data.reverse().forEach(kommentar => {
+                        kommentarContainer.append(`
+                            <div class="kommentare">
+                                <div>${kommentar.user} hat gesagt:</div>
+                                <div>${kommentar.greeting}</div>
+                                <div>Likes:${kommentar.likes}</div>
+                            </div>
+                        `)
+                    })
+                }
+                
+                axios.get(backendUrl)
+                    .then(response => {
+                        displayResponseInHtml(response)
+                    })
+
+                meinButton.click(() => {
+                    let aktuellerText = textField.val()
+                    let aktuellerName = nameField.val()
+
+                    let body = {
+                        greeting: aktuellerText,
+                        user: aktuellerName
+                    }
+                    
+                    axios.post(backendUrl, body)
+                        .then(response => {
+                            kommentarContainer.empty()
+                            displayResponseInHtml(response)
+                        })
+                })
+            })
+            
+        </script>
+    </head>
+    <body>
+        <div>
+            <span>Name:</span>
+            <input type="text" id="name-field">
+        </div>
+        <div>
+            <span>Kommentar:</span>
+            <input type="text" id="text-field">
+        </div>
+
+        <button id="mein-button">
+            Adde Kommentar
+        </button>
+
+        <button id="play-button">
+            Play/Stop Musik
+        </button>
+
+        <button id="volume-down-button">
+            -
+        </button>
+
+        <button id="volume-up-button">
+            +
+        </button>
+
+        <div id="counter" class="green">
+            Kommentare: 0
+        </div>
+
+        <div id="kommentar-container">
+            keine Kommentare bis jetzt
+        </div>
+
+    </body>
+</html>
